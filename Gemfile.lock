@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    aka (0.0.1)
+    aka2 (0.1.0)
       colorize (~> 0)
       net-scp (~> 1.2, >= 1.2.1)
       safe_yaml (~> 1.0, >= 1.0.4)
@@ -23,7 +23,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aka!
+  aka2!
   bundler (~> 1.10)
   minitest (~> 5.7)
   rake (~> 10.0)
