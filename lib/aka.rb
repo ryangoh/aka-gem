@@ -141,7 +141,7 @@ module Aka
     #
     desc "setup2", "Gem - Setup aka"
     method_options :force => :boolean
-    def setupconfig
+    def setup2
       configDir = "#{Dir.home}/.aka"
       if File.exist?("#{configDir}/.config")
         # list
@@ -402,7 +402,7 @@ module Aka
       if File.exists? path
         return YAML.load_file(path)
       else
-        puts "#{Dir.home}/.aka/.config does not exist. You need to create one, type `touch ~/.aka/.config` and copy https://github.com/ytbryan/aka/blob/master/.config".red
+        puts "#{Dir.home}/.aka/.config does not exist. Type `aka setup2` to setup the config file".red
       end
     end
 
@@ -723,7 +723,18 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         puts "Directory #{configDir}/.config exist"
       else
         FileUtils::mkdir_p("#{configDir}")
-        FileUtils.cp("./lib/.config", "#{configDir}")
+        # FileUtils.cp("./lib/.config", "#{configDir}")
+        out_file = File.new("#{Dir.home}/.aka/.config", "w")
+        out_file.puts("---")
+        out_file.puts("dotfile: \"/home/user/.bashrc\"")
+        out_file.puts("history: \"/home/user/.bash_history\"")
+        out_file.puts("home: \"/home/user/.aka\"")
+        out_file.puts("install: \"/usr/local/bin\"")
+        out_file.puts("profile: \"/home/user/.bashrc\"")
+        out_file.puts("list: 50")
+        out_file.puts("usage: 50")
+        out_file.puts("remote: 12.12.12.21")
+        out_file.close
       end
     end
 
