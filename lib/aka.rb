@@ -147,8 +147,10 @@ module Aka
         # list
         puts "config file is exist in #{configDir}"
       else
-        setup_config #create and setup .config file
-        setup_aka2    #setup aka
+        setup_config    #create and setup .config file
+        # setup_aka2    #setup aka
+        setup_aka3      #put value in .config file
+        setup_akasource # create, link source file
       end
     end
 
@@ -716,6 +718,41 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         puts "Done. Please restart this shell.".red
     end
 
+    # setup_aka3 by ryan - set value in config file
+    def setup_aka3
+        if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
+          setZSHRC2
+        elsif
+          File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
+          setBASHRC2
+        elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
+          setBASH2
+        else
+          puts "Currently aka2 just support zshrc, bashrc and bash_profile"
+          puts "Pleaes contact aka2 creator for more info."
+        end
+    end
+
+    # setup_akasource by ryan - create source file
+    def setup_akasource
+      configDir = "#{Dir.home}/.aka"
+
+      if File.exist?("#{configDir}/.config")
+        out_file = File.new("#{configDir}/akasource", "w")
+        out_file.puts("export HISTSIZE=10000")
+        out_file.puts("sigusr2() { unalias $1;}")
+        out_file.puts("sigusr1() { source #{readYML("#{configDir}/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }")
+        out_file.puts("trap sigusr1 SIGUSR1")
+        out_file.puts("trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2")
+        out_file.close
+        akasource = "source \"#{configDir}/akasource\""
+        append(akasource, readYML("#{configDir}/.config")['profile'])
+        puts "Done. Please restart this shell.".red
+      else
+        puts "Directory #{configDir}/.config doesn't exist"
+      end
+    end
+
     # create and setup config file
     def setup_config
       configDir = "#{Dir.home}/.aka"
@@ -724,7 +761,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
       else
         FileUtils::mkdir_p("#{configDir}")
         # FileUtils.cp("./lib/.config", "#{configDir}")
-        out_file = File.new("#{Dir.home}/.aka/.config", "w")
+        out_file = File.new("#{configDir}/.config", "w")
         out_file.puts("---")
         out_file.puts("dotfile: \"/home/user/.bashrc\"")
         out_file.puts("history: \"/home/user/.bash_history\"")
