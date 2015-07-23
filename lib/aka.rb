@@ -695,14 +695,14 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     def setup_aka2
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
-          append_with_newline("export HISTSIZE=10000","#{Dir.home}/.zshrc")
+          append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.zshrc")
         elsif
           File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
           setBASHRC2
-          append_with_newline("export HISTSIZE=10000","#{Dir.home}/.bashrc")
+          append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bashrc")
         elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
           setBASH2
-          append_with_newline("export HISTSIZE=10000","#{Dir.home}/.bash_profile")
+          append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bash_profile")
         else
           puts "Currently aka2 just support zshrc, bashrc and bash_profile"
           puts "Pleaes contact aka2 creator for more info."
