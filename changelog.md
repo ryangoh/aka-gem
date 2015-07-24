@@ -1,3 +1,8 @@
+## v0.1.2
+
+* Fix setup2 bug - export new line
+* create setup_akasource
+
 ## v0.1.1
 
 * User can use 'aka setup2' to set the config file
