@@ -745,7 +745,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         out_file.puts("trap sigusr1 SIGUSR1")
         out_file.puts("trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2")
         out_file.close
-        autosource = "source \"#{configDir}/autosource\""
+        autosource = "\nsource \"#{configDir}/autosource\""
         append(autosource, readYML("#{configDir}/.config")['profile'])
         puts "Done. Please restart this shell.".red
       else
