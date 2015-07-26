@@ -150,7 +150,7 @@ module Aka
         setup_config    #create and setup .config file
         # setup_aka2    #setup aka
         setup_aka3      #put value in .config file
-        setup_akasource # create, link source file
+        setup_autosource # create, link source file
       end
     end
 
@@ -733,20 +733,20 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         end
     end
 
-    # setup_akasource by ryan - create source file
-    def setup_akasource
+    # setup_autosource by ryan - create source file
+    def setup_autosource
       configDir = "#{Dir.home}/.aka"
 
       if File.exist?("#{configDir}/.config")
-        out_file = File.new("#{configDir}/akasource", "w")
+        out_file = File.new("#{configDir}/autosource", "w")
         out_file.puts("export HISTSIZE=10000")
         out_file.puts("sigusr2() { unalias $1;}")
         out_file.puts("sigusr1() { source #{readYML("#{configDir}/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }")
         out_file.puts("trap sigusr1 SIGUSR1")
         out_file.puts("trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2")
         out_file.close
-        akasource = "source \"#{configDir}/akasource\""
-        append(akasource, readYML("#{configDir}/.config")['profile'])
+        autosource = "source \"#{configDir}/autosource\""
+        append(autosource, readYML("#{configDir}/.config")['profile'])
         puts "Done. Please restart this shell.".red
       else
         puts "Directory #{configDir}/.config doesn't exist"
