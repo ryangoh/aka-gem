@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{The Missing Alias Manager}
   spec.description   = %q{aka generate/edit/destroy/find permanent aliases with a single command. }
-  spec.homepage      = "https://github.com/ytbryan/aka-gem"
+  spec.homepage      = "https://github.com/ytbryan/aka"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

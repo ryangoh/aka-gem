@@ -722,8 +722,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     def setup_aka3
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
-        elsif
-          File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
+        elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
           setBASHRC2
         elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
           setBASH2

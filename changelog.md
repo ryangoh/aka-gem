@@ -1,3 +1,7 @@
+## v0.1.3
+
+* Fix setup_aka3 bug for bashrc user
+
 ## v0.1.2
 
 * Fix setup2 bug - export new line
