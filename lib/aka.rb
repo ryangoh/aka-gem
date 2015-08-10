@@ -130,27 +130,32 @@ module Aka
     #
     # SETUP
     #
-    desc "setup", "setup aka"
+    desc "setup_old", "setup aka"
     method_options :force => :boolean
-    def setup
-      setup_aka
+    def setup_old
+      setup_aka_old
     end
 
     #
     # first step: set config file
     #
-    desc "setup2", "Gem - Setup aka"
-    method_options :force => :boolean
-    def setup2
+    desc "setup", "Gem - Setup aka"
+    method_options :reset => :boolean
+    def setup
       configDir = "#{Dir.home}/.aka"
+      if options.reset? && File.exist?("#{configDir}")
+        FileUtils.rm_r("#{configDir}")
+        puts "#{configDir} is removed"
+      end
+
       if File.exist?("#{configDir}/.config")
-        # list
-        puts "config file is exist in #{configDir}"
+        puts ".aka config file is exist in #{configDir}"
+        puts "Please run [aka setup --reset] to remove aka file and setup again"
       else
-        setup_config    #create and setup .config file
-        # setup_aka2    #setup aka
-        setup_aka3      #put value in .config file
-        setup_autosource # create, link source file
+        setup_config      # create and setup .config file
+        setup_aka         # put value in .config file
+        setup_autosource  # create, link source file
+        puts "Congratulation, aka is setup in #{configDir}"
       end
     end
 
@@ -217,6 +222,24 @@ module Aka
     #
     # LIST OUT
     #
+    desc "list_old", "list alias (short alias: l)"
+    method_options :force => :boolean
+    def list_old(args=nil)
+      if args != nil
+        showlast_old(args.to_i)
+      else
+        value = readYML("#{Dir.home}/.aka/.config")["list"]
+        showlast_old(value.to_i) #this is unsafe
+      end
+
+      #total of #{} exports #functions
+      puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
+      reload_dot_file
+    end
+
+    #
+    # LIST OUT - ryan - remove numbering
+    #
     desc "list", "list alias (short alias: l)"
     method_options :force => :boolean
     def list(args=nil)
@@ -230,29 +253,39 @@ module Aka
       #total of #{} exports #functions
       puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
       reload_dot_file
-    end
-
-    #
-    # LIST OUT - ryan - remove numbering
-    #
-    desc "list2", "list alias (short alias: l)"
-    method_options :force => :boolean
-    def list2(args=nil)
-      if args != nil
-        showlast2(args.to_i)
-      else
-        value = readYML("#{Dir.home}/.aka/.config")["list"]
-        showlast2(value.to_i) #this is unsafe
-      end
-
-      #total of #{} exports #functions
-      puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
-      reload_dot_file
       puts "\nUse 'aka -h' to see all the useful commands.\n\n"
     end
 
     #
     # USAGE
+    #
+    desc "usage_old [number]", "show commands usage based on history"
+    # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
+    # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
+    def usage_old(args=nil)
+      if args
+        if options.least
+          showUsage(args.to_i, true) if args
+        else
+          showUsage(args.to_i) if args
+        end
+      else
+        if options.least
+          value = readYML("#{Dir.home}/.aka/.config")["usage"]
+          showlast_old(value.to_i, true) #this is unsafe
+        else
+          value = readYML("#{Dir.home}/.aka/.config")["usage"]
+          showlast_old(value.to_i) #this is unsafe
+        end
+      end
+
+      if options[:clear]
+        puts "clear the dot history file"
+      end
+    end
+
+    #
+    # USAGE - ryan - remove numbering in front
     #
     desc "usage [number]", "show commands usage based on history"
     # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
@@ -271,34 +304,6 @@ module Aka
         else
           value = readYML("#{Dir.home}/.aka/.config")["usage"]
           showlast(value.to_i) #this is unsafe
-        end
-      end
-
-      if options[:clear]
-        puts "clear the dot history file"
-      end
-    end
-
-    #
-    # USAGE2 - ryan - remove numbering in front
-    #
-    desc "usage2 [number]", "show commands usage based on history"
-    # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
-    # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
-    def usage2(args=nil)
-      if args
-        if options.least
-          showUsage(args.to_i, true) if args
-        else
-          showUsage(args.to_i) if args
-        end
-      else
-        if options.least
-          value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast2(value.to_i, true) #this is unsafe
-        else
-          value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast2(value.to_i) #this is unsafe
         end
       end
 
@@ -682,8 +687,8 @@ module Aka
       end
     end
 
-    # setup_aka
-    def setup_aka
+    # setup_aka_old
+    def setup_aka_old
       append_with_newline("export HISTSIZE=10000","/etc/profile")
       trap = "sigusr2() { unalias $1;}
 sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
@@ -693,8 +698,8 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     puts "Done. Please restart this shell.".red
   end
 
-    # setup_aka2 by ryan - check bash file first
-    def setup_aka2
+    # setup_aka_old2 by ryan - check bash file first
+    def setup_aka_old2
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.zshrc")
@@ -718,8 +723,8 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         puts "Done. Please restart this shell.".red
     end
 
-    # setup_aka3 by ryan - set value in config file
-    def setup_aka3
+    # setup_aka by ryan - set value in config file
+    def setup_aka
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
         elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
@@ -819,7 +824,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     end
 
     # show last
-    def showlast howmany=10
+    def showlast_old howmany=10
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
       if content = File.open(str).read
@@ -852,7 +857,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     end
 
     # show last2 - ryan - remove number
-    def showlast2 howmany=10
+    def showlast howmany=10
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
       if content = File.open(str).read
