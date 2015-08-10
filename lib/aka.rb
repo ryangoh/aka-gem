@@ -254,10 +254,10 @@ module Aka
     #
     # USAGE
     #
-    desc "usage [number]", "show commands usage based on history"
+    desc "usage_old [number]", "show commands usage based on history"
     # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
     # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
-    def usage(args=nil)
+    def usage_old(args=nil)
       if args
         if options.least
           showUsage(args.to_i, true) if args
@@ -280,12 +280,12 @@ module Aka
     end
 
     #
-    # USAGE2 - ryan - remove numbering in front
+    # USAGE - ryan - remove numbering in front
     #
-    desc "usage2 [number]", "show commands usage based on history"
+    desc "usage [number]", "show commands usage based on history"
     # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
     # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
-    def usage2(args=nil)
+    def usage(args=nil)
       if args
         if options.least
           showUsage(args.to_i, true) if args
