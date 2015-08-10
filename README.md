@@ -7,7 +7,7 @@ aka2 requires ruby and is built for bash and zsh users.
 ## Installation
 
     $ gem install aka2
-    $ aka setup2
+    $ aka setup
 
 ## Usage
 
