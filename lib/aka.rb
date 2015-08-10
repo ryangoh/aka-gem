@@ -140,16 +140,22 @@ module Aka
     # first step: set config file
     #
     desc "setup", "Gem - Setup aka"
-    method_options :force => :boolean
+    method_options :reset => :boolean
     def setup
       configDir = "#{Dir.home}/.aka"
+      if options.reset? && File.exist?("#{configDir}")
+        FileUtils.rm_r("#{configDir}")
+        puts "#{configDir} is removed"
+      end
+
       if File.exist?("#{configDir}/.config")
-        # list
-        puts "config file is exist in #{configDir}"
+        puts ".aka config file is exist in #{configDir}"
+        puts "Please run [aka setup --reset] to remove aka file and setup again"
       else
-        setup_config    #create and setup .config file
-        setup_aka      #put value in .config file
-        setup_autosource # create, link source file
+        setup_config      # create and setup .config file
+        setup_aka         # put value in .config file
+        setup_autosource  # create, link source file
+        puts "Congratulation, aka is setup in #{configDir}"
       end
     end
 
