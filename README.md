@@ -9,6 +9,9 @@ aka2 requires ruby and is built for bash and zsh users.
     $ gem install aka2
     $ aka setup
 
+If you wish to reinstall aka setup
+    $ aka setup --reset
+    
 ## Usage
 
     $ aka generate hello="echo helloworld"
