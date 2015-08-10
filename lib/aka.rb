@@ -130,18 +130,18 @@ module Aka
     #
     # SETUP
     #
-    desc "setup", "setup aka"
+    desc "setup_old", "setup aka"
     method_options :force => :boolean
-    def setup
+    def setup_old
       setup_aka
     end
 
     #
     # first step: set config file
     #
-    desc "setup2", "Gem - Setup aka"
+    desc "setup", "Gem - Setup aka"
     method_options :force => :boolean
-    def setup2
+    def setup
       configDir = "#{Dir.home}/.aka"
       if File.exist?("#{configDir}/.config")
         # list
