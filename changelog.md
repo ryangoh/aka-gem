@@ -1,3 +1,8 @@
+## v0.1.4
+
+* Rename method names
+* Add reset function for user to re-setup aka
+
 ## v0.1.3
 
 * Fix setup_aka3 bug for bashrc user
