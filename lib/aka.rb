@@ -133,7 +133,7 @@ module Aka
     desc "setup_old", "setup aka"
     method_options :force => :boolean
     def setup_old
-      setup_aka
+      setup_aka_old
     end
 
     #
@@ -148,8 +148,7 @@ module Aka
         puts "config file is exist in #{configDir}"
       else
         setup_config    #create and setup .config file
-        # setup_aka2    #setup aka
-        setup_aka3      #put value in .config file
+        setup_aka      #put value in .config file
         setup_autosource # create, link source file
       end
     end
@@ -682,8 +681,8 @@ module Aka
       end
     end
 
-    # setup_aka
-    def setup_aka
+    # setup_aka_old
+    def setup_aka_old
       append_with_newline("export HISTSIZE=10000","/etc/profile")
       trap = "sigusr2() { unalias $1;}
 sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
@@ -693,8 +692,8 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     puts "Done. Please restart this shell.".red
   end
 
-    # setup_aka2 by ryan - check bash file first
-    def setup_aka2
+    # setup_aka_old2 by ryan - check bash file first
+    def setup_aka_old2
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.zshrc")
@@ -718,8 +717,8 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
         puts "Done. Please restart this shell.".red
     end
 
-    # setup_aka3 by ryan - set value in config file
-    def setup_aka3
+    # setup_aka by ryan - set value in config file
+    def setup_aka
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
         elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
