@@ -217,14 +217,14 @@ module Aka
     #
     # LIST OUT
     #
-    desc "list", "list alias (short alias: l)"
+    desc "list_old", "list alias (short alias: l)"
     method_options :force => :boolean
-    def list(args=nil)
+    def list_old(args=nil)
       if args != nil
-        showlast(args.to_i)
+        showlast_old(args.to_i)
       else
         value = readYML("#{Dir.home}/.aka/.config")["list"]
-        showlast(value.to_i) #this is unsafe
+        showlast_old(value.to_i) #this is unsafe
       end
 
       #total of #{} exports #functions
@@ -235,14 +235,14 @@ module Aka
     #
     # LIST OUT - ryan - remove numbering
     #
-    desc "list2", "list alias (short alias: l)"
+    desc "list", "list alias (short alias: l)"
     method_options :force => :boolean
-    def list2(args=nil)
+    def list(args=nil)
       if args != nil
-        showlast2(args.to_i)
+        showlast(args.to_i)
       else
         value = readYML("#{Dir.home}/.aka/.config")["list"]
-        showlast2(value.to_i) #this is unsafe
+        showlast(value.to_i) #this is unsafe
       end
 
       #total of #{} exports #functions
@@ -267,10 +267,10 @@ module Aka
       else
         if options.least
           value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast(value.to_i, true) #this is unsafe
+          showlast_old(value.to_i, true) #this is unsafe
         else
           value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast(value.to_i) #this is unsafe
+          showlast_old(value.to_i) #this is unsafe
         end
       end
 
@@ -295,10 +295,10 @@ module Aka
       else
         if options.least
           value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast2(value.to_i, true) #this is unsafe
+          showlast(value.to_i, true) #this is unsafe
         else
           value = readYML("#{Dir.home}/.aka/.config")["usage"]
-          showlast2(value.to_i) #this is unsafe
+          showlast(value.to_i) #this is unsafe
         end
       end
 
@@ -819,7 +819,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     end
 
     # show last
-    def showlast howmany=10
+    def showlast_old howmany=10
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
       if content = File.open(str).read
@@ -852,7 +852,7 @@ trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
     end
 
     # show last2 - ryan - remove number
-    def showlast2 howmany=10
+    def showlast howmany=10
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
       if content = File.open(str).read
