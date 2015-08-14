@@ -411,7 +411,7 @@ module Aka
       if File.exists? path
         return YAML.load_file(path)
       else
-        puts "#{Dir.home}/.aka/.config does not exist. Type `aka setup2` to setup the config file".red
+        puts "#{Dir.home}/.aka/.config does not exist. Type `aka setup` to setup the config file".red
       end
     end
 
