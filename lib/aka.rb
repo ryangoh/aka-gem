@@ -166,7 +166,7 @@ module Aka
     method_options :force => :boolean
     def find *args
       args.each_with_index do |value, index|
-        show_alias(value)
+        search_alias_return_alias_tokens(value)
       end
     end
 
@@ -175,39 +175,40 @@ module Aka
     #
     desc "edit", "edit an alias(short alias: e)"
     method_options :force => :boolean
+    method_options :name => :boolean #--name
     def edit args
       if args
         values = args.split("=")
         if values.size > 1
-          truth, _alias = show_alias(args)
+          truth, _alias = search_alias_return_alias_tokens(args)
           if truth == true
             if options.name
               remove(_alias) #remove that alias
-              edit_alias(values[1], _alias) #edit that alias
+              edit_alias_name(values[1], _alias) #edit that alias
               reload_dot_file() if !options.noreload
             else
               remove(_alias) #remove that alias
-              edit_this(values[1], _alias) #edit that alias
+              edit_alias_command(values[1], _alias) #edit that alias
               reload_dot_file() if !options.noreload
             end
           else
             puts "Alias '#{args}' cannot be found".red
           end
         else
-          truth, _alias, command = show_alias(args)
+          truth, _alias, command = search_alias_return_alias_tokens(args)
           if truth == true
             if options.name
               input = ask "Enter a new alias for command '#{command}'?\n"
               if yes? "Please confirm the new alias? (y/N)"
                 remove(_alias) #remove that alias
-                edit_alias(input, _alias) #edit that alias
+                edit_alias_name(input, command) #edit that alias
                 reload_dot_file() if !options.noreload
               end
             else
               input = ask "Enter a new command for alias '#{args}'?\n"
               if yes? "Please confirm the new command? (y/N)"
                 remove(_alias) #remove that alias
-                edit_this(input, _alias) #edit that alias
+                edit_alias_command(input, _alias) #edit that alias
                 reload_dot_file() if !options.noreload
               end
             end
@@ -500,7 +501,7 @@ module Aka
 
     # add
     def add input
-      if input and show_alias(input).first == false and not_empty_alias(input) == false
+      if input and search_alias_return_alias_tokens(input).first == false and not_empty_alias(input) == false
         array = input.split("=")
         full_command = "alias #{array.first}='#{array[1]}'".gsub("\n","") #remove new line in command
         print_out_command = "aka g #{array.first}='#{array[1]}'"
@@ -524,18 +525,30 @@ module Aka
     end
 
     # show alias
-    def show_alias argument
+    def search_alias_return_alias_tokens argument
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
-
+      # alias something="echo something"
       if content = File.open(str).read
         content.gsub!(/\r\n?/, "\n")
         content_array = content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
+          puts "value -> #{value}"
+          containsCommand = line.split('=') #containsCommand[1]
           if value.length > 1 and value.first == "alias"
-            answer = value[1].split("=")
+            # answer = value[1].split("=")
+            answer = value[1].split("=") #contains the alias
+
+            puts "answer -> #{answer}"
             if found?(answer.first, argument.split("=").first, line) == true
-              return [true, answer.first, answer[1]]
+              this_alias = answer.first
+              answer.slice!(0) #rmove the first
+              puts "before ->#{containsCommand[1]}"
+              containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+              puts "before 2 ->#{containsCommand[1]}"
+
+              puts "join ->#{containsCommand[1]}"
+              return [true, this_alias, containsCommand[1]]
             end
           end
         }
@@ -618,15 +631,14 @@ module Aka
       end
     end
 
-    # edit_this
-    def edit_this newcommand, this_alias
+    def edit_alias_command newcommand, this_alias
       puts "new: aka g #{this_alias}='#{newcommand}'"
       return append("alias " + this_alias + "='" + newcommand + "'", readYML("#{Dir.home}/.aka/.config")["dotfile"] )
     end
 
     # edit alias
-    def edit_alias newalias, thiscommand
-      puts "new: aka g #{this_alias}='#{newcommand}'"
+    def edit_alias_name newalias, thiscommand
+      puts "new: aka g #{newalias}='#{thiscommand}'"
       return append("alias " + newalias + "='" + thiscommand + "'", readYML("#{Dir.home}/.aka/.config")["dotfile"] )
     end
 
