@@ -737,6 +737,16 @@ module Aka
 
     # setup_aka by ryan - set value in config file
     def setup_aka
+      # 1. check for each type of file without setting anything.
+
+      #2. count the number of types
+
+      #3 if number of types is 1, proceed to set it
+
+      #4 if the number of types is more than 1, proceed to ask which one does the users want to uses.
+
+      #5 once you receive input, then you set it according to input
+      
         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
           setZSHRC2
         elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
@@ -744,8 +754,8 @@ module Aka
         elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
           setBASH2
         else
-          puts "Currently aka2 just support zshrc, bashrc and bash_profile"
-          puts "Pleaes contact aka2 creator for more info."
+          puts "Aka2 only supports zshrc, bashrc and bash_profile"
+          puts "Please contact http://github.com/ytbryan for more info."
         end
     end
 
