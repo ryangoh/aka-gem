@@ -10,17 +10,40 @@ aka2 requires ruby and is built for bash and zsh users.
     $ aka setup
 
 If you wish to reinstall aka setup
-    
+
     $ aka setup --reset
-    
+
 ## Usage
 
+To generate new aka
+
     $ aka generate hello="echo helloworld"
+    $ aka g hello="echo helloworld"
+
+To destroy aka
+
     $ aka destroy hello
+    $ aka d hello
+
+To edit aka command
+
     $ aka edit hello
+
+To edit aka alias name
+
+    $ aka edit hello --name
+
+To find a aka command
+
     $ aka find hello
-    $ aka usage
+
+To list all aka created
+
     $ aka
+    $ aka list
+
+To list down available command
+
     $ aka help
 
 ## Requirement
