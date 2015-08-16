@@ -144,6 +144,7 @@ module Aka
     def setup
       configDir = "#{Dir.home}/.aka"
       if options.reset? && File.exist?("#{configDir}")
+        remove_autosource
         FileUtils.rm_r("#{configDir}")
         puts "#{configDir} is removed"
       end
@@ -585,6 +586,28 @@ module Aka
         puts "#{input} cannot be found.".red
       else
         puts "#{@pwd} cannot be found.".red
+        return false
+      end
+    end
+
+    # remove autosource in dotfile
+    def remove_autosource
+
+      str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+
+      if content=File.open(str).read
+        content.gsub!(/\r\n?/, "\n")
+        content_array= content.split("\n")
+        content_array.each_with_index { |line, index|
+          if line == "source \"/home/ryan/.aka/autosource\""
+              content_array.delete_at(index) and write_with_newline(content_array)
+              puts "---> removed: source \"/home/ryan/.aka/autosource\""
+              return true
+          end
+        }
+
+      else
+        puts "---> autosource cannot be found in dotfile.".red
         return false
       end
     end
