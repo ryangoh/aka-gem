@@ -535,21 +535,21 @@ module Aka
         content_array = content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          puts "value -> #{value}"
+          # puts "value -> #{value}"
           containsCommand = line.split('=') #containsCommand[1]
           if value.length > 1 and value.first == "alias"
             # answer = value[1].split("=")
             answer = value[1].split("=") #contains the alias
 
-            puts "answer -> #{answer}"
+            # puts "answer -> #{answer}"
             if found?(answer.first, argument.split("=").first, line) == true
               this_alias = answer.first
               answer.slice!(0) #rmove the first
-              puts "before ->#{containsCommand[1]}"
+              # puts "before ->#{containsCommand[1]}"
               containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
-              puts "before 2 ->#{containsCommand[1]}"
+              # puts "before 2 ->#{containsCommand[1]}"
 
-              puts "join ->#{containsCommand[1]}"
+              # puts "join ->#{containsCommand[1]}"
               return [true, this_alias, containsCommand[1]]
             end
           end

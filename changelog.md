@@ -1,3 +1,7 @@
+## v0.1.6
+
+* Remove unnecessary print out
+
 ## v0.1.5
 
 * If more than one bashfile exist, user can choose setup destination
