@@ -254,8 +254,8 @@ module Aka
 
       #total of #{} exports #functions
       puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
-      reload_dot_file
       puts "\nUse 'aka -h' to see all the useful commands.\n\n"
+      reload_dot_file
     end
 
     #
@@ -761,7 +761,7 @@ module Aka
         userBash.each_with_index do |choice,i|
           puts "#{i+1}. Setup in #{Dir.home}/#{choice}"
         end
-        choice = ask "Please enter choose which location you wish to setup? (Choose a number and enter)\n"
+        choice = ask "Please choose which location you wish to setup? (Choose a number and enter)\n"
 
         #5 once you receive input, then you set it according to input
         case choice
@@ -772,7 +772,7 @@ module Aka
           when "3"
             if userBash[2] then set_to_dotfile(userBash[2]) else abort "No file choosen" end
           else
-            puts "Invalid input, Please try again"
+            puts "Invalid input, Please enter the number between 1 and #{userBash.count}. Please try again"
             abort "No file choosen"
         end
       end #if userBash > 1
