@@ -1,5 +1,7 @@
 # aka - The Missing Alias Manager
 
+[![Gem Version](https://badge.fury.io/rb/aka2.svg)](http://badge.fury.io/rb/aka2)
+
 aka generate/edit/destroy/find permanent aliases with a single command.
 
 aka2 requires ruby and is built for bash and zsh users.
