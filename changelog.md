@@ -1,3 +1,9 @@
+## v0.1.5
+
+* If more than one bashfile exist, user can choose setup destination
+* Add edit alias's name function for user
+* Add remove source from dotfile
+
 ## v0.1.4
 
 * Rename method names

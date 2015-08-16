@@ -144,6 +144,7 @@ module Aka
     def setup
       configDir = "#{Dir.home}/.aka"
       if options.reset? && File.exist?("#{configDir}")
+        remove_autosource
         FileUtils.rm_r("#{configDir}")
         puts "#{configDir} is removed"
       end
@@ -154,6 +155,7 @@ module Aka
       else
         setup_config      # create and setup .config file
         setup_aka         # put value in .config file
+        puts "setting up autosource"
         setup_autosource  # create, link source file
         puts "Congratulation, aka is setup in #{configDir}"
       end
@@ -253,8 +255,8 @@ module Aka
 
       #total of #{} exports #functions
       puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
-      reload_dot_file
       puts "\nUse 'aka -h' to see all the useful commands.\n\n"
+      reload_dot_file
     end
 
     #
@@ -410,7 +412,7 @@ module Aka
       if File.exists? path
         return YAML.load_file(path)
       else
-        puts "#{Dir.home}/.aka/.config does not exist. Type `aka setup2` to setup the config file".red
+        puts "#{Dir.home}/.aka/.config does not exist. Type `aka setup` to setup the config file".red
       end
     end
 
@@ -588,6 +590,28 @@ module Aka
       end
     end
 
+    # remove autosource in dotfile
+    def remove_autosource
+
+      str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+
+      if content=File.open(str).read
+        content.gsub!(/\r\n?/, "\n")
+        content_array= content.split("\n")
+        content_array.each_with_index { |line, index|
+          if line == "source \"/home/ryan/.aka/autosource\""
+              content_array.delete_at(index) and write_with_newline(content_array)
+              puts "---> removed: source \"/home/ryan/.aka/autosource\""
+              return true
+          end
+        }
+
+      else
+        puts "---> autosource cannot be found in dotfile.".red
+        return false
+      end
+    end
+
     # history
     def history
 
@@ -737,27 +761,67 @@ module Aka
 
     # setup_aka by ryan - set value in config file
     def setup_aka
+      userBash = []
       # 1. check for each type of file without setting anything.
+      if File.exist?("#{Dir.home}/.zshrc") #if zshrc exist
+        userBash.push(".zshrc")
+      end
+      if File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
+        userBash.push(".bashrc")
+      end
+      if File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
+        userBash.push(".bash_profile")
+      end
 
       #2. count the number of types
 
       #3 if number of types is 1, proceed to set it
+      if userBash.count == 1
+        set_to_dotfile(userBash.first)
 
-      #4 if the number of types is more than 1, proceed to ask which one does the users want to uses.
-
-      #5 once you receive input, then you set it according to input
-      
-        if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
-          setZSHRC2
-        elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
-          setBASHRC2
-        elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
-          setBASH2
-        else
-          puts "Aka2 only supports zshrc, bashrc and bash_profile"
-          puts "Please contact http://github.com/ytbryan for more info."
+      elsif userBash.count > 1
+        #4 if the number of types is more than 1, proceed to ask which one does the users want to uses.
+        userBash.each_with_index do |choice,i|
+          puts "#{i+1}. Setup in #{Dir.home}/#{choice}"
         end
+        choice = ask "Please choose which location you wish to setup? (Choose a number and enter)\n"
+
+        #5 once you receive input, then you set it according to input
+        case choice
+          when "1"
+            set_to_dotfile(userBash[0]) if userBash[0]
+          when "2"
+            if userBash[1] then set_to_dotfile(userBash[1]) else abort "No file choosen" end
+          when "3"
+            if userBash[2] then set_to_dotfile(userBash[2]) else abort "No file choosen" end
+          else
+            puts "Invalid input, Please enter the number between 1 and #{userBash.count}. Please try again"
+            abort "No file choosen"
+        end
+      end #if userBash > 1
+
+        # if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
+        #   setZSHRC2
+        # elsif File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
+        #   setBASHRC2
+        # elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
+        #   setBASH2
+        # else
+        #   puts "Aka2 only supports zshrc, bashrc and bash_profile"
+        #   puts "Please contact http://github.com/ytbryan for more info."
+        # end
     end
+
+    def set_to_dotfile(filename)
+      if filename == ".zshrc"
+        setZSHRC2
+      elsif filename == ".bashrc"
+        setBASHRC2
+      elsif filename == ".bash_profile"
+        setBASH2
+      end
+    end
+
 
     # setup_autosource by ryan - create source file
     def setup_autosource
