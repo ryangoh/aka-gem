@@ -23,35 +23,51 @@ module Aka
         "h" => "help"
 
     #
-    # DOWNLOAD
-    # aka download --to ~/Desktop/ --login admin@162.243.249.154:22000 --from /home/admin/hello  desc "download [path]", "download a dot file"
-    desc "download", "download dotfile from server"
+    # Where is your dotfile
+    # aka where
+    desc "where", "locate your dotfile"
+    def where
+      puts readYML("#{Dir.home}/.aka/.config")["dotfile"]
+    end
+
+
+    #
+    # UPLOAD
+    #
+    #aka upload --from ~/Desktop/TwitterAPI.rb --login admin@162.243.249.154:22000  --to /home/admin
+    desc "upload", "upload a dot file"
     method_options :from => :string
     method_options :to => :string
     method_options :login => :string
-    def download
+    def upload
       if options.from and options.to and options.login
-        success = true
-        arr = split(options.login)
-        pw = get_password()
-        begin
-          result = Net::SCP.download!(arr[1], #remote
-          arr.first,#username
-          options.from, #remote_path
-          options.to, #local_path
-          :ssh => {:password => pw,
-                   :port => arr[2]})
-        rescue Exception => e
-           puts "\n#{e}"
-           success = false
+        password = get_password()
+
+        if File.exists?(options.from)
+          success = true
+          begin
+            arr = split(options.login)
+            result = Net::SCP.upload!(arr[1], #remote
+            arr.first, #username
+            options.from, #local_path
+            options.to, #remote_path
+            :ssh => {:port => arr[2],
+                     :password => password})
+          rescue Exception => e
+            puts "\n#{e}"
+            success = false
+          end
+
+          puts "\nDone." if success
+        else
+          puts "Cannot find #{options.from}"
         end
-        puts "\nDone." if success
       else
-        puts "Some options are missing."
-        puts "--login: #{options.login}"
-        puts "--to: #{options.to}"
-        puts "--from: #{options.from}"
-        puts "aka dl --login some_login_string --to some_local_path_string --from some_remote_path_string"
+        puts "Some options are missing:"
+        puts "--of -> #{options.of}"
+        puts "--to -> #{options.to}"
+        puts "--from -> #{options.from}"
+        puts "aka up --of some_string --to some_string --from some_string"
       end
     end
 
@@ -126,15 +142,6 @@ module Aka
         reload_dot_file if result == true and !options.noreload
       end
     end
-
-    #
-    # SETUP_old
-    #
-    # desc "setup_old", "setup aka"
-    # method_options :force => :boolean
-    # def setup_old
-    #   setup_aka_old
-    # end
 
     #
     # first step: set config file
@@ -223,24 +230,6 @@ module Aka
     end
 
     #
-    # LIST OUT
-    #
-    # desc "list_old", "list alias (short alias: l)"
-    # method_options :force => :boolean
-    # def list_old(args=nil)
-    #   if args != nil
-    #     showlast_old(args.to_i)
-    #   else
-    #     value = readYML("#{Dir.home}/.aka/.config")["list"]
-    #     showlast_old(value.to_i) #this is unsafe
-    #   end
-    #
-    #   #total of #{} exports #functions
-    #   puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
-    #   reload_dot_file
-    # end
-
-    #
     # LIST OUT - ryan - remove numbering
     #
     desc "list", "list alias (short alias: l)"
@@ -258,34 +247,6 @@ module Aka
       puts "\nUse 'aka -h' to see all the useful commands.\n\n"
       reload_dot_file
     end
-
-    #
-    # USAGE
-    #
-    # desc "usage_old [number]", "show commands usage based on history"
-    # # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
-    # # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
-    # def usage_old(args=nil)
-    #   if args
-    #     if options.least
-    #       showUsage(args.to_i, true) if args
-    #     else
-    #       showUsage(args.to_i) if args
-    #     end
-    #   else
-    #     if options.least
-    #       value = readYML("#{Dir.home}/.aka/.config")["usage"]
-    #       showlast_old(value.to_i, true) #this is unsafe
-    #     else
-    #       value = readYML("#{Dir.home}/.aka/.config")["usage"]
-    #       showlast_old(value.to_i) #this is unsafe
-    #     end
-    #   end
-    #
-    #   if options[:clear]
-    #     puts "clear the dot history file"
-    #   end
-    # end
 
     #
     # USAGE - ryan - remove numbering in front
@@ -314,29 +275,6 @@ module Aka
         puts "clear the dot history file"
       end
     end
-
-
-    #
-    # INSTALL
-    #
-    # desc "install [name]", "install aka"
-    # method_options :force => :boolean
-    # def install
-    #   if File.exist? "#{Dir.pwd}/aka"
-    #     if File.exist? "/usr/local/bin/aka"
-    #       if  yes? "aka exists. Do you want to replace it? (yN)"
-    #         FileUtils.rm("/usr/local/bin/aka")
-    #         system("ln -s #{Dir.pwd}/aka /usr/local/bin/aka")
-    #         puts "aka replaced."
-    #       end
-    #     else
-    #       result = system("ln -s #{Dir.pwd}/aka /usr/local/bin/aka")
-    #       puts "aka installed."
-    #     end
-    #   else
-    #     puts "Cannot find aka.".red
-    #   end
-    # end
 
     #
     # INIT
@@ -511,7 +449,9 @@ module Aka
         str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
         File.open(str, 'a') { |file| file.write("\n" +full_command) }
-        puts "#{print_out_command} is added to #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
+        # puts "#{print_out_command} is added to #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
+        puts "Created: ".green +  "#{print_out_command}"
+
         return true
       else
         puts "The alias is already present."
@@ -577,7 +517,10 @@ module Aka
             if answer.first == input
               content_array.delete_at(index) and write_with_newline(content_array)
               print_out_command = "aka g #{input}=#{line.split("=")[1]}"
-              puts "removed: #{print_out_command} is removed from #{str}".red
+              # puts  "removed: #{print_out_command} is removed from #{str}".red
+
+              puts "Removed: ".red  + "#{print_out_command}"
+
               return true
             end
           end
@@ -601,7 +544,9 @@ module Aka
         content_array.each_with_index { |line, index|
           if line == "source \"/home/ryan/.aka/autosource\""
               content_array.delete_at(index) and write_with_newline(content_array)
-              puts "---> removed: source \"/home/ryan/.aka/autosource\""
+              # puts "---> removed: source \"/home/ryan/.aka/autosource\""
+              puts "Removed: ".red + "source \"/home/ryan/.aka/autosource\""
+
               return true
           end
         }
@@ -723,41 +668,7 @@ module Aka
       end
     end
 
-    # setup_aka_old
-#     def setup_aka_old
-#       append_with_newline("export HISTSIZE=10000","/etc/profile")
-#       trap = "sigusr2() { unalias $1;}
-# sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
-# trap sigusr1 SIGUSR1
-# trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
-#       append(trap, readYML("#{Dir.home}/.aka/.config")['profile'])
-#     puts "Done. Please restart this shell.".red
-#   end
-#
-#     # setup_aka_old2 by ryan - check bash file first
-#     def setup_aka_old2
-#         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
-#           setZSHRC2
-#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.zshrc")
-#         elsif
-#           File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
-#           setBASHRC2
-#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bashrc")
-#         elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
-#           setBASH2
-#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bash_profile")
-#         else
-#           puts "Currently aka2 just support zshrc, bashrc and bash_profile"
-#           puts "Pleaes contact aka2 creator for more info."
-#         end
-#
-#         trap = "sigusr2() { unalias $1;}
-#   sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
-#   trap sigusr1 SIGUSR1
-#   trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
-#         append(trap, readYML("#{Dir.home}/.aka/.config")['profile'])
-#         puts "Done. Please restart this shell.".red
-#     end
+
 
     # setup_aka by ryan - set value in config file
     def setup_aka
@@ -1129,61 +1040,6 @@ module Aka
       return result + " #{percent.round(2)}%"
     end
 
-
-    # command :config do |c|
-    #   c.action do |args, options|
-    #     # theyml = Hash.new
-    #     # theyml["location"] = "~/.aka/.location"
-    #     # theyml["global"] = "/Users/ytbryan/.bash_profile"
-    #     # theyml["groups"] = "~/.aka/groups"
-    #     # theyml["remote"] = "255, admin, 12.12.12.233"
-    #     # theyml["path"] = "~/.aka"
-    #     # writeYML("#{Dir.home}/.aka/.config", theyml)
-    #     FileUtils.touch(readYML("#{Dir.home}/.aka/.config")["location"])
-    #   end
-    # end
-    #
-    # command :readconfig do |c|
-    #   c.action do |args, options|
-    #     puts "readYML('#{Dir.home}/.aka/.config')['location'] ->#{readYML("#{Dir.home}/.aka/.config")["location"].class} -> #{readYML("#{Dir.home}/.aka/.config")["location"]}"
-    #     puts "readYML("#{Dir.home}/.aka/.config")["location"] -> #{ readYML("#{Dir.home}/.aka/.config")["location"].class} -> #{ readYML("#{Dir.home}/.aka/.config")["location"]}"
-    #     puts "#{program(:path_to_location).class} -> #{program(:path_to_location)}"
-    #   end
-    # end
-    #
-
-    ###########################
-    ### DEVELOPMENT
-    ###########################
-
-    # command :build do |c|
-    #   c.syntax = 'aka build [options]'
-    #   c.summary = 'build the VERSION file and run tests'
-    #   c.action do |args, options|
-    #     write(program(:version), './VERSION')
-    #     puts "VERSION #{program(:version)} created at #{Time.now.strftime("%I:%M%p, %A, %d %b %Y")}"
-    #   end
-    # end
-
-    # command :install do |c|
-    #   c.syntax = 'aka copy [options]'
-    #   c.summary = 'copy a local copy of aka to /usr/local/bin'
-    #   c.action do |args, options|
-    #     result = system("sudo cp aka /usr/local/bin")
-    #     puts "Installed aka #{program(:version)} into /usr/local/bin (#{Time.now.strftime("%I:%M%p,%a,%d %b %Y")}).".red if result == true
-    #     puts "" if result == true
-    #   end
-    # end
-    #
-    # command :uninstall do |c|
-    #   c.syntax = 'aka uninstall [options]'
-    #   c.summary = 'uninstall aka'
-    #   c.action do |args, options|
-    #     input = ask "Confirm that you want to uninstall aka? (y/N)"
-    #     system("sudo rm -rf ~/.aka; sudo rm -rf /usr/local/bin/aka;") if input == "y"
-    #   end
-    # end
-
     def add_to_proj fullalias
       values = fullalias.split("=")
       yml = readYML("#{Dir.pwd}/.aka")
@@ -1324,3 +1180,176 @@ class String
     !!(self =~ /\A[-+]?[0-9]+\z/)
   end
 end
+
+__END__
+
+#
+# LIST OUT
+#
+# desc "list_old", "list alias (short alias: l)"
+# method_options :force => :boolean
+# def list_old(args=nil)
+#   if args != nil
+#     showlast_old(args.to_i)
+#   else
+#     value = readYML("#{Dir.home}/.aka/.config")["list"]
+#     showlast_old(value.to_i) #this is unsafe
+#   end
+#
+#   #total of #{} exports #functions
+#   puts "A total of #{count()} aliases,#{count_export} exports and #{count_function} functions from #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
+#   reload_dot_file
+# end
+
+
+
+    # command :config do |c|
+    #   c.action do |args, options|
+    #     # theyml = Hash.new
+    #     # theyml["location"] = "~/.aka/.location"
+    #     # theyml["global"] = "/Users/ytbryan/.bash_profile"
+    #     # theyml["groups"] = "~/.aka/groups"
+    #     # theyml["remote"] = "255, admin, 12.12.12.233"
+    #     # theyml["path"] = "~/.aka"
+    #     # writeYML("#{Dir.home}/.aka/.config", theyml)
+    #     FileUtils.touch(readYML("#{Dir.home}/.aka/.config")["location"])
+    #   end
+    # end
+    #
+    # command :readconfig do |c|
+    #   c.action do |args, options|
+    #     puts "readYML('#{Dir.home}/.aka/.config')['location'] ->#{readYML("#{Dir.home}/.aka/.config")["location"].class} -> #{readYML("#{Dir.home}/.aka/.config")["location"]}"
+    #     puts "readYML("#{Dir.home}/.aka/.config")["location"] -> #{ readYML("#{Dir.home}/.aka/.config")["location"].class} -> #{ readYML("#{Dir.home}/.aka/.config")["location"]}"
+    #     puts "#{program(:path_to_location).class} -> #{program(:path_to_location)}"
+    #   end
+    # end
+    #
+
+    ###########################
+    ### DEVELOPMENT
+    ###########################
+
+    # command :build do |c|
+    #   c.syntax = 'aka build [options]'
+    #   c.summary = 'build the VERSION file and run tests'
+    #   c.action do |args, options|
+    #     write(program(:version), './VERSION')
+    #     puts "VERSION #{program(:version)} created at #{Time.now.strftime("%I:%M%p, %A, %d %b %Y")}"
+    #   end
+    # end
+
+    # command :install do |c|
+    #   c.syntax = 'aka copy [options]'
+    #   c.summary = 'copy a local copy of aka to /usr/local/bin'
+    #   c.action do |args, options|
+    #     result = system("sudo cp aka /usr/local/bin")
+    #     puts "Installed aka #{program(:version)} into /usr/local/bin (#{Time.now.strftime("%I:%M%p,%a,%d %b %Y")}).".red if result == true
+    #     puts "" if result == true
+    #   end
+    # end
+    #
+    # command :uninstall do |c|
+    #   c.syntax = 'aka uninstall [options]'
+    #   c.summary = 'uninstall aka'
+    #   c.action do |args, options|
+    #     input = ask "Confirm that you want to uninstall aka? (y/N)"
+    #     system("sudo rm -rf ~/.aka; sudo rm -rf /usr/local/bin/aka;") if input == "y"
+    #   end
+    # end
+
+    #
+    # SETUP_old
+    #
+    # desc "setup_old", "setup aka"
+    # method_options :force => :boolean
+    # def setup_old
+    #   setup_aka_old
+    # end
+
+    #
+    # USAGE
+    #
+    # desc "usage_old [number]", "show commands usage based on history"
+    # # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
+    # # method_options :clear, :type => :boolean, :aliases => '-c', :desc => 'clear the dot history file'
+    # def usage_old(args=nil)
+    #   if args
+    #     if options.least
+    #       showUsage(args.to_i, true) if args
+    #     else
+    #       showUsage(args.to_i) if args
+    #     end
+    #   else
+    #     if options.least
+    #       value = readYML("#{Dir.home}/.aka/.config")["usage"]
+    #       showlast_old(value.to_i, true) #this is unsafe
+    #     else
+    #       value = readYML("#{Dir.home}/.aka/.config")["usage"]
+    #       showlast_old(value.to_i) #this is unsafe
+    #     end
+    #   end
+    #
+    #   if options[:clear]
+    #     puts "clear the dot history file"
+    #   end
+    # end
+
+
+    #
+    # INSTALL
+    #
+    # desc "install [name]", "install aka"
+    # method_options :force => :boolean
+    # def install
+    #   if File.exist? "#{Dir.pwd}/aka"
+    #     if File.exist? "/usr/local/bin/aka"
+    #       if  yes? "aka exists. Do you want to replace it? (yN)"
+    #         FileUtils.rm("/usr/local/bin/aka")
+    #         system("ln -s #{Dir.pwd}/aka /usr/local/bin/aka")
+    #         puts "aka replaced."
+    #       end
+    #     else
+    #       result = system("ln -s #{Dir.pwd}/aka /usr/local/bin/aka")
+    #       puts "aka installed."
+    #     end
+    #   else
+    #     puts "Cannot find aka.".red
+    #   end
+    # end
+
+
+    # setup_aka_old
+#     def setup_aka_old
+#       append_with_newline("export HISTSIZE=10000","/etc/profile")
+#       trap = "sigusr2() { unalias $1;}
+# sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
+# trap sigusr1 SIGUSR1
+# trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
+#       append(trap, readYML("#{Dir.home}/.aka/.config")['profile'])
+#     puts "Done. Please restart this shell.".red
+#   end
+#
+#     # setup_aka_old2 by ryan - check bash file first
+#     def setup_aka_old2
+#         if File.exist?("#{Dir.home}/.zshrc") #if zshec exist
+#           setZSHRC2
+#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.zshrc")
+#         elsif
+#           File.exist?("#{Dir.home}/.bashrc") #if bashrc exist
+#           setBASHRC2
+#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bashrc")
+#         elsif File.exist?("#{Dir.home}/.bash_profile") #if bash_profile exist
+#           setBASH2
+#           append_with_newline("\nexport HISTSIZE=10000","#{Dir.home}/.bash_profile")
+#         else
+#           puts "Currently aka2 just support zshrc, bashrc and bash_profile"
+#           puts "Pleaes contact aka2 creator for more info."
+#         end
+#
+#         trap = "sigusr2() { unalias $1;}
+#   sigusr1() { source #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}; history -a; echo 'reloaded dot file'; }
+#   trap sigusr1 SIGUSR1
+#   trap 'sigusr2 $(cat ~/sigusr1-args)' SIGUSR2\n".pretty
+#         append(trap, readYML("#{Dir.home}/.aka/.config")['profile'])
+#         puts "Done. Please restart this shell.".red
+#     end
