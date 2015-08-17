@@ -1,3 +1,9 @@
+## v0.1.7
+
+* Add numbering option for list
+* Add validation for list method
+* Beautify aka output
+
 ## v0.1.6
 
 * Remove unnecessary print out
