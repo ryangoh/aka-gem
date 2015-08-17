@@ -1,3 +1,7 @@
+## v0.1.8
+
+* Merge from ytbryan - Edit 'Error','Exist' output
+
 ## v0.1.7
 
 * Add numbering option for list
