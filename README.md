@@ -41,10 +41,10 @@ To find a aka command
 
 To list all aka created
 
-    $ aka
     $ aka list
+    $ aka list 20
     $ aka list --number
-    
+
 To list down available command
 
     $ aka help
