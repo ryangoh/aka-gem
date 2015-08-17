@@ -192,9 +192,9 @@ module Aka
           truth, _alias = search_alias_return_alias_tokens(args)
           if truth == true
             if options.name
-              remove(_alias) #remove that alias
-              edit_alias_name(values[1], _alias) #edit that alias
-              reload_dot_file() if !options.noreload
+                remove(_alias) #remove that alias
+                edit_alias_name(values[1], _alias) #edit that alias
+                reload_dot_file() if !options.noreload
             else
               remove(_alias) #remove that alias
               edit_alias_command(values[1], _alias) #edit that alias
@@ -336,7 +336,7 @@ module Aka
         writeYML("#{Dir.home}/.aka/.config", data)
         puts "#{value} -> #{path}"
       else
-        puts "error: --#{value} does not exist in #{Dir.home}/.aka/.config "
+        puts "Error: ".red + "--#{value} does not exist in #{Dir.home}/.aka/.config "
       end
     end
 
@@ -454,7 +454,7 @@ module Aka
 
         return true
       else
-        puts "The alias is already present."
+        puts "The alias is already present. Use 'aka -h' to see all the useful commands."
         return false
       end
     end
@@ -593,7 +593,7 @@ module Aka
       if answer == argument
         # puts line.red + " - aka add #{argument}"
         # puts line.red
-        puts "found: aka g #{argument}=#{line.split('=')[1]}".red
+        puts "Exist:  ".green + " aka g #{argument}=#{line.split('=')[1]}"
         return true
       else
         return false
@@ -601,13 +601,13 @@ module Aka
     end
 
     def edit_alias_command newcommand, this_alias
-      puts "new: aka g #{this_alias}='#{newcommand}'"
+      puts "Edited:  ".yellow + "aka g #{this_alias}='#{newcommand}'"
       return append("alias " + this_alias + "='" + newcommand + "'", readYML("#{Dir.home}/.aka/.config")["dotfile"] )
     end
 
     # edit alias
     def edit_alias_name newalias, thiscommand
-      puts "new: aka g #{newalias}='#{thiscommand}'"
+      puts "Edited:  ". yellow + "aka g #{newalias}='#{thiscommand}'"
       return append("alias " + newalias + "='" + thiscommand + "'", readYML("#{Dir.home}/.aka/.config")["dotfile"] )
     end
 
@@ -808,12 +808,12 @@ module Aka
     def checkConfigFile str
       path =  "#{Dir.home}/.bash_profile"
       if str == ""
-        puts "Error: Type `aka init --dotfile #{path}` to set the path to your dotfile. \nReplace .bash_profile with .bashrc or .zshrc if you are not using bash.".red
+        puts "Error: ".red + "Type `aka init --dotfile #{path}` to set the path to your dotfile. \nReplace .bash_profile with .bashrc or .zshrc if you are not using bash."
         exit()
       end
 
       if !File.exists?(str)
-        puts "Error: Type `aka init --dotfile #{path}` to set the path of your dotfile. \nReplace .bash_profile with .bashrc or .zshrc if you are not using bash.".red
+        puts "Error: ".red + "Type `aka init --dotfile #{path}` to set the path of your dotfile. \nReplace .bash_profile with .bashrc or .zshrc if you are not using bash."
         exit()
       end
 
