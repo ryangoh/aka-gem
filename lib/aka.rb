@@ -30,7 +30,6 @@ module Aka
       puts readYML("#{Dir.home}/.aka/.config")["dotfile"]
     end
 
-
     #
     # UPLOAD
     #
@@ -234,12 +233,13 @@ module Aka
     #
     desc "list", "list alias (short alias: l)"
     method_options :force => :boolean
+    method_options :number => :boolean
     def list(args=nil)
       if args != nil
-        showlast(args.to_i)
+        showlast(options.number,args.to_i)
       else
         value = readYML("#{Dir.home}/.aka/.config")["list"]
-        showlast(value.to_i) #this is unsafe
+        showlast(options.number,value.to_i) #this is unsafe
       end
 
       #total of #{} exports #functions
@@ -854,7 +854,7 @@ module Aka
     end
 
     # show last2 - ryan - remove number
-    def showlast howmany=10
+    def showlast(list_number=false,howmany=10)
       str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
 
       if content = File.open(str).read
@@ -872,14 +872,22 @@ module Aka
         if total_aliases.count > howmany
           total_aliases.last(howmany).each_with_index do |line, index|
             splitted= line.split('=')
-            puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            if list_number
+              puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            else
+              puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            end
             # puts "#{total_aliases.count - howmany + index+1}. " + splitted[0] + "=" + splitted[1].red
           end
         else
           total_aliases.last(howmany).each_with_index do |line, index|
             splitted= line.split('=')
             # puts "#{index+1}. " + splitted[0] + "=" + splitted[1].red
-            puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            if list_number
+              puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            else
+              puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            end
           end
         end
         puts ""
