@@ -239,7 +239,6 @@ module Aka
         showlast(options.number,args.to_i) #user input
       else
         value = readYML("#{Dir.home}/.aka/.config")["list"]
-        puts value.class
         if value.class == Fixnum
           showlast(options.number,value.to_i)
         else
