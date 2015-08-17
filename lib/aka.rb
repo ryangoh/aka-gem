@@ -236,10 +236,16 @@ module Aka
     method_options :number => :boolean
     def list(args=nil)
       if args != nil
-        showlast(options.number,args.to_i)
+        showlast(options.number,args.to_i) #user input
       else
         value = readYML("#{Dir.home}/.aka/.config")["list"]
-        showlast(options.number,value.to_i) #this is unsafe
+        puts value.class
+        if value.class == Fixnum
+          showlast(options.number,value.to_i)
+        else
+          puts "List value is not defined in #{Dir.home}/.aka/.config"
+          showlast(options.number,50)
+        end
       end
 
       #total of #{} exports #functions

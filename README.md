@@ -43,7 +43,8 @@ To list all aka created
 
     $ aka
     $ aka list
-
+    $ aka list --number
+    
 To list down available command
 
     $ aka help
