@@ -113,10 +113,7 @@ module Aka
     #################
     # GENERATE
     #################
-    # # => default
-    # # => group_name
     desc "generate", "generate an alias (short alias: g)"
-    # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
     method_option :last, :type => :boolean, :aliases => '-l', :desc => ''
     method_option :group, :type => :string, :aliases => '-g', :desc => '', :default => 'default'
     def generate args
@@ -125,9 +122,8 @@ module Aka
         #we need to add group here.
         result = add(add_last_command(parseARGS(args))) if args
       else
-        #we should phrase out add()
+        #we should probably phase out add()
         result = add_with_group(parseARGS(args), options.group) if args
-        # result = add(parseARGS(args)) if args
         if options.proj? and result == true
           FileUtils.touch("#{Dir.pwd}/.aka")
           add_to_proj(args)
@@ -179,9 +175,14 @@ module Aka
     #
     desc "find", "find an alias (short alias: f)"
     method_options :force => :boolean
+    method_option :group, :type => :string, :aliases => '-g', :desc => ''
     def find *args
-      args.each_with_index do |value, index|
-        search_alias_return_alias_tokens(value)
+      if options.group
+        search_alias_with_group_name(options.group)
+      else
+        args.each_with_index do |value, index|
+          search_alias_return_alias_tokens(value)
+        end
       end
     end
 
@@ -241,7 +242,6 @@ module Aka
     desc "list", "list alias (short alias: l)"
     method_options :force => :boolean
     method_options :number => :boolean
-    method_option :group, :type => :string, :aliases => '-g', :desc => '', :default => 'default'
     def list(args=nil)
       if args != nil
         showlast(options.number,args.to_i) #user input
@@ -496,6 +496,50 @@ module Aka
       array = input.split("=")
       return true if array.count < 2
       return array[1].strip == ""
+    end
+
+    #list
+    def search_alias_with_group_name name
+      if name == "group"
+        name = "default"
+        str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+
+        if content = File.open(str).read
+          content.gsub!(/\r\n?/, "\n")
+          content_array = content.split("\n")
+          content_array.each_with_index { |line, index|
+            value = line.split(" ")
+            containsCommand = line.split('=') #containsCommand[1]
+            if value.length > 1 and value.first == "alias"
+              answer = value[1].split("=") #contains the alias
+              group_name = line.scan(/# => ([a-zA-z]*)/).first if line.scan(/# => ([a-zA-z]*)/)
+              if group_name != nil && group_name.first == name
+                containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+                puts "aka g " + "#{answer.first}".red + "=#{containsCommand[1]}"
+              end
+            end
+          }
+        end
+      else
+
+        str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+        if content = File.open(str).read
+          content.gsub!(/\r\n?/, "\n")
+          content_array = content.split("\n")
+          content_array.each_with_index { |line, index|
+            value = line.split(" ")
+            containsCommand = line.split('=') #containsCommand[1]
+            if value.length > 1 and value.first == "alias"
+              answer = value[1].split("=") #contains the alias
+              group_name = line.scan(/# => ([a-zA-z]*)/).first if line.scan(/# => ([a-zA-z]*)/)
+              if group_name != nil && group_name.first == name
+                containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+                puts "aka g " + "#{answer.first}".red + "=#{containsCommand[1]}"
+              end
+            end
+          }
+        end
+      end
     end
 
     # show alias
