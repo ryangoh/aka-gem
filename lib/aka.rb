@@ -1133,7 +1133,7 @@ module Aka
         while check == false
           check = true
           content_array.each_with_index { |line, index|
-            if line == "" or line == "\n"
+            if line == "" || line == "\n"
               content_array.delete_at(index)
               check = false
             end
