@@ -39,7 +39,7 @@ module Aka
     method_options :to => :string
     method_options :login => :string
     def upload
-      if options.from and options.to and options.login
+      if options.from && options.to && options.login
         password = get_password()
 
         if File.exists?(options.from)
@@ -79,7 +79,7 @@ module Aka
     method_options :to => :string
     method_options :login => :string
     def upload
-      if options.from and options.to and options.login
+      if options.from && options.to && options.login
         password = get_password()
 
         if File.exists?(options.from)
@@ -124,12 +124,12 @@ module Aka
       else
         #we should probably phase out add()
         result = add_with_group(parseARGS(args), options.group) if args
-        if options.proj? and result == true
+        if options.proj? && result == true
           FileUtils.touch("#{Dir.pwd}/.aka")
           add_to_proj(args)
         end
       end
-      reload_dot_file if result == true and !options.noreload
+      reload_dot_file if result == true && !options.noreload
     end
 
     #
@@ -140,8 +140,8 @@ module Aka
     def destroy(*args)
       args.each_with_index do |value, index|
         result = remove(value)
-        unalias_the(value) if !options.nounalias and result == true
-        reload_dot_file if result == true and !options.noreload
+        unalias_the(value) if !options.nounalias && result == true
+        reload_dot_file if result == true && !options.noreload
       end
     end
 
@@ -453,7 +453,7 @@ module Aka
     end
 
     def add_with_group input, name_of_group
-      if input and search_alias_return_alias_tokens(input).first == false and not_empty_alias(input) == false
+      if input && search_alias_return_alias_tokens(input).first == false && not_empty_alias(input) == false
         array = input.split("=")
         group_name = "# => #{name_of_group}"
         full_command = "alias #{array.first}='#{array[1]}' #{group_name}".gsub("\n","") #remove new line in command
@@ -473,7 +473,7 @@ module Aka
 
     # add
     def add input
-      if input and search_alias_return_alias_tokens(input).first == false and not_empty_alias(input) == false
+      if input && search_alias_return_alias_tokens(input).first == false && not_empty_alias(input) == false
         array = input.split("=")
         full_command = "alias #{array.first}='#{array[1]}'".gsub("\n","") #remove new line in command
         print_out_command = "aka g #{array.first}='#{array[1]}'"
@@ -510,11 +510,11 @@ module Aka
           content_array.each_with_index { |line, index|
             value = line.split(" ")
             containsCommand = line.split('=') #containsCommand[1]
-            if value.length > 1 and value.first == "alias"
+            if value.length > 1 && value.first == "alias"
               answer = value[1].split("=") #contains the alias
               group_name = line.scan(/# => ([a-zA-z]*)/).first if line.scan(/# => ([a-zA-z]*)/)
               if group_name != nil && group_name.first == name
-                containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+                containsCommand[1].slice!(0) &&  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil && containsCommand[1][0] == "'" && containsCommand[1][containsCommand[1].length-1] == "'"
                 puts "aka g " + "#{answer.first}".red + "=#{containsCommand[1]}"
               end
             end
@@ -529,11 +529,11 @@ module Aka
           content_array.each_with_index { |line, index|
             value = line.split(" ")
             containsCommand = line.split('=') #containsCommand[1]
-            if value.length > 1 and value.first == "alias"
+            if value.length > 1 && value.first == "alias"
               answer = value[1].split("=") #contains the alias
               group_name = line.scan(/# => ([a-zA-z]*)/).first if line.scan(/# => ([a-zA-z]*)/)
               if group_name != nil && group_name.first == name
-                containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+                containsCommand[1].slice!(0) &&  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil && containsCommand[1][0] == "'" && containsCommand[1][containsCommand[1].length-1] == "'"
                 puts "aka g " + "#{answer.first}".red + "=#{containsCommand[1]}"
               end
             end
@@ -553,7 +553,7 @@ module Aka
           value = line.split(" ")
           # puts "value -> #{value}"
           containsCommand = line.split('=') #containsCommand[1]
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             # answer = value[1].split("=")
             answer = value[1].split("=") #contains the alias
 
@@ -562,7 +562,7 @@ module Aka
               this_alias = answer.first
               answer.slice!(0) #rmove the first
               # puts "before ->#{containsCommand[1]}"
-              containsCommand[1].slice!(0) and  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil and containsCommand[1][0] == "'" and containsCommand[1][containsCommand[1].length-1] == "'"
+              containsCommand[1].slice!(0) &&  containsCommand[1].slice!(containsCommand[1].length-1) if containsCommand[1] != nil && containsCommand[1][0] == "'" && containsCommand[1][containsCommand[1].length-1] == "'"
               # puts "before 2 ->#{containsCommand[1]}"
 
               # puts "join ->#{containsCommand[1]}"
@@ -588,10 +588,10 @@ module Aka
         content_array= content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             answer = value[1].split("=")
             if answer.first == input
-              content_array.delete_at(index) and write_with_newline(content_array)
+              content_array.delete_at(index) && write_with_newline(content_array)
               print_out_command = "aka g #{input}=#{line.split("=")[1]}"
               # puts  "removed: #{print_out_command} is removed from #{str}".red
 
@@ -619,7 +619,7 @@ module Aka
         content_array= content.split("\n")
         content_array.each_with_index { |line, index|
           if line == "source \"/home/ryan/.aka/autosource\""
-              content_array.delete_at(index) and write_with_newline(content_array)
+              content_array.delete_at(index) && write_with_newline(content_array)
               # puts "---> removed: source \"/home/ryan/.aka/autosource\""
               puts "Removed: ".red + "source \"/home/ryan/.aka/autosource\""
 
@@ -696,7 +696,7 @@ module Aka
         content_array= content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "function"
+          if value.length > 1 && value.first == "function"
             answer = value[1].split("=")
             function_count += 1
           end
@@ -714,7 +714,7 @@ module Aka
         content_array= content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "export"
+          if value.length > 1 && value.first == "export"
             answer = value[1].split("=")
             export_count += 1
           end
@@ -735,7 +735,7 @@ module Aka
         content_array= content.split("\n")
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             answer = value[1].split("=")
             alias_count += 1
           end
@@ -864,7 +864,7 @@ module Aka
     # read location
     def read location
       answer = dot_location_exists?(location)
-      if answer == true and content = File.open(location).read
+      if answer == true && content = File.open(location).read
         return content
       end
       return ""
@@ -907,7 +907,7 @@ module Aka
         total_aliases = []
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             total_aliases.push(line)
           end
         }
@@ -941,7 +941,7 @@ module Aka
         total_aliases = []
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             total_aliases.push(line)
           end
         }
@@ -986,7 +986,7 @@ module Aka
         total_aliases = []
         content_array.each_with_index { |line, index|
           value = line.split(" ")
-          if value.length > 1 and value.first == "alias"
+          if value.length > 1 && value.first == "alias"
             total_aliases.push(line)
           end
         }
@@ -1099,7 +1099,7 @@ module Aka
       countarray.each_with_index { |count, index|
         countarray[0..countarray.size-index].each_with_index { |x, thisindex|  #always one less than total
 
-          if index < countarray.size-1 and thisindex < countarray.size-1
+          if index < countarray.size-1 && thisindex < countarray.size-1
             if countarray[thisindex] < countarray[thisindex+1] #if this count is less than next count
               temp = countarray[thisindex]
               countarray[thisindex] = countarray[thisindex+1]
@@ -1160,7 +1160,7 @@ module Aka
     def showBar percent
       result = ""
       val = percent/100 * 50
-      val = 2 if val > 1 and val < 2
+      val = 2 if val > 1 && val < 2
       val = 1 if val.round <= 1 #for visibiity, show two bars if it's just one
       val.round.times do
         result += "+"
