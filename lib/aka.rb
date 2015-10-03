@@ -27,7 +27,7 @@ module Aka
     # aka where
     desc "where", "locate your dotfile"
     def where
-      puts readYML("#{Dir.home}/.aka/.config")["dotfile"]
+      puts readYML("#{Dir.pwd}/.aka/.config")["dotfile"]
     end
 
     #
@@ -110,17 +110,24 @@ module Aka
       end
     end
 
-    #
+    #################
     # GENERATE
-    #
+    #################
+    # # => default
+    # # => group_name
     desc "generate", "generate an alias (short alias: g)"
-    method_options :last => :boolean
+    # method_options :least, :type => :boolean, :aliases => '-l', :desc => 'show the least used commands'
+    method_option :last, :type => :boolean, :aliases => '-l', :desc => ''
+    method_option :group, :type => :string, :aliases => '-g', :desc => '', :default => 'default'
     def generate args
       result = false
       if options.last?
+        #we need to add group here.
         result = add(add_last_command(parseARGS(args))) if args
       else
-        result = add(parseARGS(args)) if args
+        #we should phrase out add()
+        result = add_with_group(parseARGS(args), options.group) if args
+        # result = add(parseARGS(args)) if args
         if options.proj? and result == true
           FileUtils.touch("#{Dir.pwd}/.aka")
           add_to_proj(args)
@@ -234,6 +241,7 @@ module Aka
     desc "list", "list alias (short alias: l)"
     method_options :force => :boolean
     method_options :number => :boolean
+    method_option :group, :type => :string, :aliases => '-g', :desc => '', :default => 'default'
     def list(args=nil)
       if args != nil
         showlast(options.number,args.to_i) #user input
@@ -442,6 +450,25 @@ module Aka
       domain = fulldomain.split("@")[1].split(":").first
       port = fulldomain.split("@")[1].split(":")[1]
       return [username, domain, port]
+    end
+
+    def add_with_group input, name_of_group
+      if input and search_alias_return_alias_tokens(input).first == false and not_empty_alias(input) == false
+        array = input.split("=")
+        group_name = "# => #{name_of_group}"
+        full_command = "alias #{array.first}='#{array[1]}' #{group_name}".gsub("\n","") #remove new line in command
+        print_out_command = "aka g #{array.first}='#{array[1]}'"
+        str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+
+        File.open(str, 'a') { |file| file.write("\n" +full_command) }
+        # puts "#{print_out_command} is added to #{readYML("#{Dir.home}/.aka/.config")["dotfile"]}"
+        puts "Created: ".green +  "#{print_out_command} " + "in #{name_of_group} group."
+
+        return true
+      else
+        puts "The alias is already present. Use 'aka -h' to see all the useful commands."
+        return false
+      end
     end
 
     # add
@@ -844,14 +871,60 @@ module Aka
         if total_aliases.count > howmany
           total_aliases.last(howmany).each_with_index do |line, index|
             splitted= line.split('=')
-            puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+            # puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
             # puts "#{total_aliases.count - howmany + index+1}. " + splitted[0] + "=" + splitted[1].red
           end
         else
           total_aliases.last(howmany).each_with_index do |line, index|
             splitted= line.split('=')
             # puts "#{index+1}. " + splitted[0] + "=" + splitted[1].red
-            puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            puts "#{index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+            # puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+          end
+        end
+        puts ""
+      end
+    end
+
+    def show_last_with_group(list_number=false, howmany=10, group)
+      str = checkConfigFile(readYML("#{Dir.home}/.aka/.config")["dotfile"])
+
+      if content = File.open(str).read
+        content.gsub!(/\r\n?/, "\n")
+        content_array = content.split("\n")
+
+        total_aliases = []
+        content_array.each_with_index { |line, index|
+          value = line.split(" ")
+          if value.length > 1 and value.first == "alias"
+            total_aliases.push(line)
+          end
+        }
+        puts ""
+        if total_aliases.count > howmany
+          total_aliases.last(howmany).each_with_index do |line, index|
+            splitted= line.split('=')
+            if list_number
+              puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            else
+              puts "aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            end
+            # puts "#{total_aliases.count - howmany + index+1}. " + splitted[0] + "=" + splitted[1].red
+          end
+        else
+          total_aliases.last(howmany).each_with_index do |line, index|
+            splitted= line.split('=')
+            # puts "#{index+1}. " + splitted[0] + "=" + splitted[1].red
+            if list_number
+              puts "#{index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            else
+              puts "aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+            end
           end
         end
         puts ""
@@ -878,9 +951,11 @@ module Aka
           total_aliases.last(howmany).each_with_index do |line, index|
             splitted= line.split('=')
             if list_number
-              puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+              puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "#{total_aliases.count - howmany + index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
             else
-              puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+              puts "aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
             end
             # puts "#{total_aliases.count - howmany + index+1}. " + splitted[0] + "=" + splitted[1].red
           end
@@ -889,9 +964,11 @@ module Aka
             splitted= line.split('=')
             # puts "#{index+1}. " + splitted[0] + "=" + splitted[1].red
             if list_number
-              puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+              puts "#{index+1}. aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "#{index+1}. aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
             else
-              puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
+              puts "aka g " + splitted[0].split(" ")[1].red + "=" + splitted[1]
+              # puts "aka g " + splitted[0].split(" ")[1] + "=" + splitted[1].red
             end
           end
         end
@@ -1177,7 +1254,6 @@ module Aka
         return false
       end
     end
-
 
   end
 
